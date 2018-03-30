@@ -28,7 +28,7 @@ namespace ReliablePubSub.Client
             });
 
 
-            using (new Subscriber(new[] { "tcp://localhost" }, 6669, 6668, knownTypes, topics, cache,
+            using (new Subscriber(new[] { "tcp://localhost" }, 6669, 5668, knownTypes, topics, cache,
                 (t, c, n) => Debug.WriteLine($"Gap in message id. Current:{c} New:{n}")))
             {
                 while (Console.ReadKey().Key != ConsoleKey.Escape) { }

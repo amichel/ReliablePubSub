@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using NetMQ;
 using NetMQ.Sockets;
 
@@ -8,7 +9,6 @@ namespace ReliablePubSub.Server
     {
         private readonly TimeSpan _heartbeatInterval;
         private const string PublishMessageCommand = "P";
-        private const string ReceiveTimeoutCommand = "RT";
         private const string WelcomeMessage = "WM";
         private const string HeartbeatMessage = "HB";
 
@@ -71,7 +71,8 @@ namespace ReliablePubSub.Server
 
         private void OnReceiveTimeout(object sender, NetMQTimerEventArgs e)
         {
-            _actor.SendFrame(ReceiveTimeoutCommand);
+            _receiveTimeoutTimer.Enable = false;
+            _onReceiveTimeout?.Invoke();
         }
 
         private void OnHeartbeatTimerElapsed(object sender, NetMQTimerEventArgs e)
@@ -82,24 +83,21 @@ namespace ReliablePubSub.Server
 
         private void OnShimMessage(object sender, NetMQSocketEventArgs e)
         {
-            string command = e.Socket.ReceiveFrameString();
-
-            if (command == PublishMessageCommand)
+            string command;
+            while (e.Socket.TryReceiveFrameString(out command))
             {
-                // just forward the message to the publisher
-                NetMQMessage message = e.Socket.ReceiveMultipartMessage();
-                _publisherSocket.SendMultipartMessage(message);
-                _receiveTimeoutTimer?.EnableAndReset();
-            }
-            else if (command == ReceiveTimeoutCommand)
-            {
-                _receiveTimeoutTimer.Enable = false;
-                _onReceiveTimeout?.Invoke();
-            }
-            else if (command == NetMQActor.EndShimMessage)
-            {
-                // we got dispose command, we just stop the poller
-                _poller.Stop();
+                if (command == PublishMessageCommand)
+                {
+                    // just forward the message to the publisher
+                    NetMQMessage message = e.Socket.ReceiveMultipartMessage();
+                    _publisherSocket.SendMultipartMessage(message);
+                    _receiveTimeoutTimer?.EnableAndReset();
+                }
+                else if (command == NetMQActor.EndShimMessage)
+                {
+                    // we got dispose command, we just stop the poller
+                    _poller.Stop();
+                }
             }
         }
 

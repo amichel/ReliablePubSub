@@ -54,7 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DefaultComparer.cs" />
+    <Compile Include="DefaultConnectionMonitor.cs" />
     <Compile Include="DefaultLastValueCache.cs" />
+    <Compile Include="IConnectionMonitor.cs" />
     <Compile Include="IKeyExtractor.cs" />
     <Compile Include="ILastValueCache.cs" />
     <Compile Include="ISerializer.cs" />
