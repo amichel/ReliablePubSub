@@ -13,54 +13,54 @@ namespace ReliablePubSub.Server
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine("Running");
-            using (var monitor = new DefaultConnectionMonitor())
-            using (var server = new RouterSocket())
-            using (var client = new DealerSocket())
-            using (var poller = new NetMQPoller())
-            {
-                server.Bind("tcp://*:6669");
-                var timer = new NetMQTimer(1000) { Enable = false };
-                timer.Elapsed += (s, e) =>
-                {
-                    Console.WriteLine($"Timer Elapsed {DateTime.UtcNow.ToShortTimeString()}");
-                };
-                poller.Add(client);
-                poller.Add(timer);
-                poller.RunAsync();
+            //Console.WriteLine("Running");
+            //using (var monitor = new DefaultConnectionMonitor())
+            //using (var server = new RouterSocket())
+            //using (var client = new DealerSocket())
+            //using (var poller = new NetMQPoller())
+            //{
+            //    server.Bind("tcp://*:6669");
+            //    var timer = new NetMQTimer(1000) { Enable = false };
+            //    timer.Elapsed += (s, e) =>
+            //    {
+            //        Console.WriteLine($"Timer Elapsed {DateTime.UtcNow.ToShortTimeString()}");
+            //    };
+            //    poller.Add(client);
+            //    poller.Add(timer);
+            //    poller.RunAsync();
 
-                //timer.EnableAndReset();
+            //    //timer.EnableAndReset();
 
-                if (!monitor.TryConnectAndMonitorSocket(client, "tcp://localhost:6669", poller,
-                    (m, s) =>
-                    {
-                        Console.WriteLine($"Monitor ConnectionState {s}");
+            //    if (!monitor.TryConnectAndMonitorSocket(client, "tcp://localhost:6669", poller,
+            //        (m, s) =>
+            //        {
+            //            Console.WriteLine($"Monitor ConnectionState {s}");
 
-                        if (s)
-                            timer.Enable = false;
-                        else
-                            timer.EnableAndReset();
-                    }))
-                {
-                    Console.WriteLine("Connect Timeout");
-                }
+            //            if (s)
+            //                timer.Enable = false;
+            //            else
+            //                timer.EnableAndReset();
+            //        }))
+            //    {
+            //        Console.WriteLine("Connect Timeout");
+            //    }
 
-                //do
-                //{
-                //    Thread.Sleep(1000);
-                //} while (Console.ReadKey().Key != ConsoleKey.Escape);
-                Thread.Sleep(5000);
-                server.Close();
+            //    //do
+            //    //{
+            //    //    Thread.Sleep(1000);
+            //    //} while (Console.ReadKey().Key != ConsoleKey.Escape);
+            //    Thread.Sleep(5000);
+            //    server.Close();
 
-                do
-                {
-                    Thread.Sleep(1000);
-                } while (Console.ReadKey().Key != ConsoleKey.Escape);
-            }
-            Console.WriteLine("Stopped");
+            //    do
+            //    {
+            //        Thread.Sleep(1000);
+            //    } while (Console.ReadKey().Key != ConsoleKey.Escape);
+            //}
+            //Console.WriteLine("Stopped");
 
 
-            return;
+            //return;
 
             var knownTypes = new Dictionary<Type, TypeConfig>();
             knownTypes.Add(typeof(MyMessage), new TypeConfig
