@@ -21,19 +21,23 @@ namespace ReliablePubSub.Common
             _connectTimeout = connectTimeout;
         }
 
-        public bool TryConnectAndMonitorSocket(NetMQSocket socket, string address, Action<IConnectionMonitor, bool> onConnectionStateChanged = null)
+        public bool TryConnectAndMonitorSocket(NetMQSocket socket, string address, NetMQPoller poller = null, Action<IConnectionMonitor, bool> onConnectionStateChanged = null)
         {
             _onConnectionStateChanged = onConnectionStateChanged;
 
             _monitor = new NetMQMonitor(socket, $"inproc://monitor.socket/{Guid.NewGuid()}", SocketEvents.Connected | SocketEvents.Disconnected);
             _monitor.Connected += MonitorConnected;
             _monitor.Disconnected += MonitorDisconnected;
-            _monitorTask = _monitor.StartAsync();
+
+            if (poller == null)
+                _monitorTask = _monitor.StartAsync();
+            else
+                _monitor.AttachToPoller(poller);
 
             socket.Connect(address);
             return WaitForConnection();
         }
-
+        
         public bool WaitForConnection()
         {
             return _connectHandle.Wait(_connectTimeout);
