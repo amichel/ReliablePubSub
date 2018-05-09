@@ -56,6 +56,8 @@ namespace ReliablePubSub.Client
                 }
             }
             _messageIds[topic] = msgid;
+            DateTime publishTime = DateTime.FromBinary(m.Pop().ConvertToInt64());
+            //TODO: do something with publishTime - perf counter, latency alert
 
             int frame = m.FrameCount;
             while (frame-- > 0)

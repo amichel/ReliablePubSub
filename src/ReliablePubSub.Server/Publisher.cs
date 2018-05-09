@@ -76,6 +76,7 @@ namespace ReliablePubSub.Server
                 _messageIds[publishTopic] = msgid = 0;
 
             var message = new NetMQMessage(messageBulk);
+            message.Push(DateTime.UtcNow.ToBinary());
             message.Push(msgid);
             message.Push(publishTopic);
             return message;
